@@ -442,8 +442,9 @@ dojo.declare("Chosen", null, {
 		}
 	},
 	
-	container_mousedown: function(evt) {
+	container_mousedown: function(evt) {	 	  
 		if (!this.is_disabled) {
+
 			var target_closelink = evt != null ? dojo.hasClass(evt.target, 'search-choice-close') : false;
 			if (evt && evt.type === "mousedown") {
 				evt.stopPropagation();
@@ -458,7 +459,7 @@ dojo.declare("Chosen", null, {
 					this.document_click_handle = dojo.connect(document, 'click', this, 'test_active_click');
 
 					this.results_show();
-				} else if (!this.is_multiple && evt && (evt.target === this.selected_item || dojo.query(evt.target).parent('a.chzn-single').length)) {
+				} else if (!this.is_multiple && evt && (evt.target === this.selected_item || dojo.query(evt.target).parents('a.chzn-single').length)) {
 					evt.preventDefault();
 					this.results_toggle();
 				}
