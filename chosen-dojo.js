@@ -618,12 +618,14 @@ dojo.declare("Chosen", null, {
 
 			var visible_top = this.search_results.scrollTop,
 				visible_bottom = maxHeight + visible_top,
-				high_top = Math.abs(dojo.coords(this.result_highlight).y - dojo.coords(this.search_results).y) + this.search_results.scrollTop,
-				high_bottom = Math.abs(high_top + dojo.coords(this.result_highlight).h);
+				high_top = (dojo.coords(this.result_highlight).y - dojo.coords(this.search_results).y) + this.search_results.scrollTop,
+				high_bottom = high_top + dojo.coords(this.result_highlight).h;
 			
-			if (high_bottom >= visible_bottom){					
+			
+			
+			if (high_bottom >= visible_bottom) {
 				this.search_results.scrollTop = (high_bottom - maxHeight) > 0 ? high_bottom - maxHeight : 0;
-			} else if (high_top < visible_top){
+			} else if (high_top < visible_top) {
 				this.search_results.scrollTop = high_top;
 			}
 	
