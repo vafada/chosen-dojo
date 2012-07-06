@@ -118,7 +118,7 @@ dojo.declare("Chosen", null, {
 	
 		this.container = dojo.create('div', {
 			id: this.container_id,
-			class: 	'chzn-container'+ (this.is_rtl ? ' chzn-rtl' : '') + " chzn-container-" + (this.is_multiple ? "multi" : "single"),
+			className: 	'chzn-container'+ (this.is_rtl ? ' chzn-rtl' : '') + " chzn-container-" + (this.is_multiple ? "multi" : "single"),
 			style: 'width: ' + this.f_width + 'px'			
 		});
 	
@@ -439,7 +439,7 @@ dojo.declare("Chosen", null, {
 	
 	single_deselect_control_build: function() {
 		if (this.options.allow_single_deselect && dojo.query('abbr', this.selected_item).length < 1) {
-			dojo.create('abbr', {class: 'search-choice-close'}, dojo.query('span', this.selected_item).shift()); 
+			dojo.create('abbr', {className: 'search-choice-close'}, dojo.query('span', this.selected_item).shift()); 
 		
 		}
 	},
@@ -603,7 +603,7 @@ dojo.declare("Chosen", null, {
     },
     
     no_results: function(terms) {
-		var no_results_html = dojo.create('li', {class: 'no-results', innerHTML: this.results_none_found + ' "<span></span>" '}, this.search_results);			
+		var no_results_html = dojo.create('li', {className: 'no-results', innerHTML: this.results_none_found + ' "<span></span>" '}, this.search_results);			
 		dojo.query('span', no_results_html).shift().innerHTML = terms;
 	},
 	
