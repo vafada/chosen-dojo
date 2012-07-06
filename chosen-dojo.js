@@ -537,7 +537,7 @@ dojo.declare("Chosen", null, {
 		this.no_results_clear();
 		
 		var results = 0,
-			searchText = dojo.getAttr(this.search_field, 'value') === this.default_text ? "" : dojo.getAttr(this.search_field, 'value').trim(),
+			searchText = dojo.getAttr(this.search_field, 'value') === this.default_text ? "" : dojo.trim(dojo.getAttr(this.search_field, 'value')),
 			regex = new RegExp('^' + searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i'),
 			zregex = new RegExp(searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i');
 		
