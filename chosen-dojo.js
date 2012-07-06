@@ -543,7 +543,7 @@ dojo.declare("Chosen", null, {
 		
 		_this = this;
 					
-		this.results_data.forEach(function(option) {
+		dojo.forEach(this.results_data, function(option) {
 			if (!option.disabled && !option.empty) {
 				if (option.group) {		
 					dojo.setStyle(dojo.byId(option.dom_id), 'display', 'none');
@@ -558,7 +558,7 @@ dojo.declare("Chosen", null, {
 						var parts = option.html.replace(/\[|\]/g, "").split(" ");
 	
 						if (parts.length) {
-							parts.forEach(function(part) {
+							dojo.forEach(parts, function(part) {
 								if (regex.test(part)) {
 									found = true;
 									results += 1;
