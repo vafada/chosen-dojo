@@ -315,7 +315,7 @@
 			</div>
 			<div>
 				<em>Into This</em>
-				<select data-placeholder="Choose a Country..." class="chzn-select" style="width:350px;" tabindex="2" name="select1">
+				<select onchange="standard_select_change();" data-placeholder="Choose a Country..." class="chzn-select" style="width:350px;" tabindex="2" name="select1" id="select1">
 					<option value=""></option>
 					<option value="United States">United States</option>
 					<option value="United Kingdom">United Kingdom</option>
@@ -561,6 +561,7 @@
 					<option value="Zambia">Zambia</option>
 					<option value="Zimbabwe">Zimbabwe</option>
 				</select>
+				<div id="standard_msg"></div>
 			</div>
 		</div>
 
@@ -816,7 +817,7 @@
 			</div>
 			<div>
 				<em>Into This</em>
-				<select data-placeholder="Choose a Country..." class="chzn-select" multiple style="width:350px;" tabindex="4" name='multiple_country'>
+				<select id="select2" onchange="multiple_select_change();" data-placeholder="Choose a Country..." class="chzn-select" multiple style="width:350px;" tabindex="4" name='multiple_country'>
 					<option value=""></option>
 					<option value="United States">United States</option>
 					<option value="United Kingdom">United Kingdom</option>
@@ -1062,6 +1063,7 @@
 					<option value="Zambia">Zambia</option>
 					<option value="Zimbabwe">Zimbabwe</option>
 				</select>
+				<div id="multiple_msg"></div>
 			</div>
 		</div>
 
@@ -1214,7 +1216,7 @@
 		<div class="side-by-side clearfix">
 			<p>When a single select box isn't a required field, you can set <code>allow_single_deselect: true</code> and Chosen will add a UI element for option deselection. This will only work if the first option has blank text.</p>
 			<div class="side-by-side clearfix">
-				<select data-placeholder="Your Favorite Type of Bear" style="width:350px;" class="chzn-select-deselect" tabindex="7">
+				<select id="select3" onchange="deselect_select_change()" data-placeholder="Your Favorite Type of Bear" style="width:350px;" class="chzn-select-deselect" tabindex="7">
 					<option value=""></option>
 					<option>American Black Bear</option>
 					<option>Asiatic Black Bear</option>
@@ -1224,8 +1226,10 @@
 					<option>Sun Bear</option>
 					<option>Polar Bear</option>
 					<option>Spectacled Bear</option>
-				</select>
+				</select>				
+				<div id="deselect_msg"></div>
 			</div>
+			
 		</div>
 
 		<h2>Right to Left Support</h2>
@@ -1267,6 +1271,38 @@
 			dojo.query(".chzn-select").chosen();
 			dojo.query(".chzn-select-deselect").chosen({allow_single_deselect:true});
         });
+        
+        function standard_select_change() {
+	    var select_object = dojo.byId('select1');
+	    var select_div = dojo.byId('standard_msg');
+	    
+	    select_div.innerHTML = 'Selected value = ' + dojo.getAttr(select_object, 'value');
+        }
+        
+        function multiple_select_change() {
+	    var select_object = dojo.byId('select2');
+	    var select_div = dojo.byId('multiple_msg');
+	    
+	    var selected_values = [];
+	    
+	    for (x=0;x<=select_object.length;x++)
+         {
+            if (select_object[x] && select_object[x].selected)
+            {
+             selected_values.push(select_object[x].value);
+            }
+         }
+
+	    
+	    select_div.innerHTML = 'Selected value = ' + selected_values;
+        }
+        
+        function deselect_select_change() {
+	  var select_object = dojo.byId('select3');
+	    var select_div = dojo.byId('deselect_msg');
+	    
+	    select_div.innerHTML = 'Selected value = ' + dojo.getAttr(select_object, 'value');
+        }
 
 	</script>
 
