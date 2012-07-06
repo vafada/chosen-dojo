@@ -345,7 +345,7 @@ dojo.declare("Chosen", null, {
 		dojo.query('span', this.selected_item).shift().innerHTML = this.default_text;
 		this.show_search_field_default();
 		dojo.destroy(evt.target);
-		//this.form_field.fireEvent("change");
+		this.dojo_fire_event("change");
 		if (this.active_field) {
 			this.results_hide();
 		}
@@ -420,9 +420,20 @@ dojo.declare("Chosen", null, {
 				this.results_hide();
 			}
 			dojo.setAttr(this.search_field, 'value', "");
-			//this.form_field.fireEvent("change");
+			this.dojo_fire_event("change");
 	
 			this.search_field_scale();
+		}
+	},
+	
+	dojo_fire_event: function (event_name) {
+	       // IE does things differently
+               if (dojo.isIE) {
+	              dojo.query(this.form_field).shift().fireEvent("on" + event_name);
+               } else {  // Not IE
+                      var event = document.createEvent("HTMLEvents");
+                      event.initEvent(event_name, false, true);	    
+		      dojo.query(this.form_field).shift().dispatchEvent(event);
 		}
 	},
 	
@@ -442,8 +453,9 @@ dojo.declare("Chosen", null, {
 		}
 	},
 	
-	container_mousedown: function(evt) {
+	container_mousedown: function(evt) {	 	  
 		if (!this.is_disabled) {
+
 			var target_closelink = evt != null ? dojo.hasClass(evt.target, 'search-choice-close') : false;
 			if (evt && evt.type === "mousedown") {
 				evt.stopPropagation();
@@ -774,7 +786,7 @@ dojo.declare("Chosen", null, {
 		this.result_clear_highlight();
 		this.winnow_results();
 	
-		//this.form_field.fireEvent("change");
+		this.dojo_fire_event("change");
 		this.search_field_scale();
 	},
 	
