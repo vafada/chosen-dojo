@@ -8,9 +8,6 @@ Chosen is a library for making long, unwieldy select boxes more user friendly.
 
 This a port of Chosen (more specifically, a port of [Chosen MooTools version](https://github.com/julesjanssen/chosen)).
 
-### Known issues:
-
-- events aren't fired (jQuery.trigger(), prototype.fire(), mootools.fireEvent())
 
 ### Chosen Credits
 
