@@ -1232,6 +1232,28 @@
 			
 		</div>
 
+        <h2>Update Events</h2>
+        <div class="side-by-side clearfix">
+            <p>If you need to update the options in your select field and want Chosen to pick up the changes, you'll need to trigger the "liszt:updated" event on the field. Chosen will re-build itself based on the updated content.</p>
+            <div class="side-by-side clearfix">                
+                <select id="select4" data-placeholder="Your Favorite Type of Bear" style="width:350px;" class="chzn-select-deselect" tabindex="8">
+                    <option value=""></option>
+                    <option>American Black Bear</option>
+                    <option>Asiatic Black Bear</option>
+                    <option>Brown Bear</option>
+                    <option>Giant Panda</option>
+                    <option selected>Sloth Bear</option>
+                    <option>Sun Bear</option>
+                    <option>Polar Bear</option>
+                    <option>Spectacled Bear</option>
+                </select>
+
+                <p><a id="updateLink">Update List</a></p>
+                <code>var select_object = dojo.byId('select4'); dojo.publish('liszt:updated', [select_object]);</code>
+            </div>
+
+        </div>
+
 		<h2>Right to Left Support</h2>
 		<div class="side-by-side clearfix">
 			<p>Chosen supports right to left select boxes too. just add <code>"chzn-rtl"</code> in addition to <code>"chzn-select"</code> to your select tags and you are good to go.</p>
@@ -1270,6 +1292,27 @@
 		dojo.ready(function() {
 			dojo.query(".chzn-select").chosen();
 			dojo.query(".chzn-select-deselect").chosen({allow_single_deselect:true});
+
+            var updateLink = dojo.byId("updateLink");
+
+            dojo.connect(updateLink, 'onclick', function() {
+                dojo.query('#select4 > option').forEach(function(optionTag) {
+                    if (optionTag.innerHTML) {
+                        var values = optionTag.innerHTML.split(" ");
+
+                        var newValue = values[values.length - 1];
+
+                        for (var i = 0; i <= values.length - 2; i++) {
+                            newValue = newValue + " "  + values[i] ;
+                        }
+
+                        optionTag.innerHTML = newValue;
+                    }
+                });
+
+                var select_object = dojo.byId('select4');
+                dojo.publish('liszt:updated', [select_object]);
+            });
         });
         
         function standard_select_change() {
