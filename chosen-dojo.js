@@ -178,7 +178,6 @@ dojo.declare("Chosen", null, {
         dojo.connect(this.search_results, 'mouseup', this, 'search_results_mouseup');
         dojo.connect(this.search_results, 'mouseout', this, 'search_results_mouseout');
 
-        //dojo.connect(this.form_field, 'liszt:updated', this, 'results_update_field');
         dojo.subscribe('liszt:updated', this, 'results_update_field');
 
         dojo.connect(this.search_field, 'blur', this, 'input_blur');
