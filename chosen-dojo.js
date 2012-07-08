@@ -405,31 +405,60 @@ dojo.declare("Chosen", null, {
             var high = this.result_highlight, high_id = high.id;
             this.result_clear_highlight();
 
-            if (this.is_multiple) {
-                this.result_deactivate(high);
-            } else {
-                var selected = dojo.query(this.search_results, '.result-selected').shift();
+            var position = high_id.substr(high_id.lastIndexOf("_") + 1);
 
-                if (selected) {
-                    dojo.removeClass(selected, "result-selected");
+            var item = this.results_data[position];
+
+            if (this.is_multiple && item.group && this.options.batch_select) {
+                // assume multiple
+                var siblings = dojo.query(high).nextAll();
+
+                var index = 0;
+
+                while(!dojo.hasClass(siblings[index], "group-result-selectable")) {
+                    if (dojo.hasClass(siblings[index], "active-result")) {
+
+
+                        var sibling = siblings[index];
+                        var sibling_id = sibling.id;
+                        var sibling_position = sibling_id.substr(sibling_id.lastIndexOf("_") + 1);
+                        var sibling_item = this.results_data[sibling_position];
+                        sibling_item.selected = true;
+                        this.form_field.options[sibling_item.options_index].selected = true;
+
+                        this.result_deactivate(sibling);
+
+                        dojo.addClass(sibling, "result-selected");
+
+                        this.choice_build(sibling_item);
+                    }
+
+                    index++;
                 }
-                this.result_single_selected = high;
-            }
-
-            dojo.addClass(high, "result-selected");
-
-
-            var position = high_id.substr(high_id.lastIndexOf("_") + 1), item = this.results_data[position];
-            item.selected = true;
-
-            this.form_field.options[item.options_index].selected = true;
-
-            if (this.is_multiple) {
-                this.choice_build(item);
             } else {
-                dojo.query('span', this.selected_item).shift().innerHTML = item.text;
-                if (this.options.allow_single_deselect) {
-                    this.single_deselect_control_build();
+                if (this.is_multiple) {
+                    this.result_deactivate(high);
+                } else {
+                    var selected = dojo.query(this.search_results, '.result-selected').shift();
+
+                    if (selected) {
+                        dojo.removeClass(selected, "result-selected");
+                    }
+                    this.result_single_selected = high;
+                }
+
+                dojo.addClass(high, "result-selected");
+
+                item.selected = true;
+                this.form_field.options[item.options_index].selected = true;
+
+                if (this.is_multiple) {
+                    this.choice_build(item);
+                } else {
+                    dojo.query('span', this.selected_item).shift().innerHTML = item.text;
+                    if (this.options.allow_single_deselect) {
+                        this.single_deselect_control_build();
+                    }
                 }
             }
 
@@ -519,6 +548,7 @@ dojo.declare("Chosen", null, {
     },
 
     search_results_mouseover:function (evt) {
+
         var target = dojo.hasClass(dojo.query(evt.target).shift(), "active-result") ? evt.target : dojo.query(evt.target).parent(".active-result").shift();
 
         if (target) {
@@ -859,7 +889,7 @@ dojo.declare("Chosen", null, {
         dojo.setAttr(this.search_field, 'value', '');
 
         dojo.query('li', this.search_results).forEach(function (li) {
-            dojo.hasClass(li, "group-result") ? dojo.setStyle(li, 'display', 'block') : !_this.is_multiple || !dojo.hasClass(li, "result-selected") ? _this.result_activate(li) : void 0;
+            (dojo.hasClass(li, "group-result") || dojo.hasClass(li, "group-result-selectable")) ? dojo.setStyle(li, 'display', 'block') : !_this.is_multiple || !dojo.hasClass(li, "result-selected") ? _this.result_activate(li) : void 0;
         });
     },
 
@@ -879,7 +909,12 @@ dojo.declare("Chosen", null, {
     result_add_group:function (group) {
         if (!group.disabled) {
             group.dom_id = this.container_id + "_g_" + group.array_index;
-            return '<li id="' + group.dom_id + '" class="group-result"><div>' + group.label + '</div></li>';
+
+            if (this.options.batch_select) {
+                return '<li id="' + group.dom_id + '" class="group-result-selectable active-result"><div>' + group.label + '</div></li>';
+            } else {
+                return '<li id="' + group.dom_id + '" class="group-result"><div>' + group.label + '</div></li>';
+            }
         } else {
             return '';
         }
