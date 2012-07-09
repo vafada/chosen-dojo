@@ -415,7 +415,7 @@ dojo.declare("Chosen", null, {
 
                 var index = 0;
 
-                while(!dojo.hasClass(siblings[index], "group-result-selectable")) {
+                while(siblings[index] && !dojo.hasClass(siblings[index], "group-result-selectable")) {
                     if (dojo.hasClass(siblings[index], "active-result")) {
 
 
