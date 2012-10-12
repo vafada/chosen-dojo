@@ -194,14 +194,18 @@ dojo.declare("Chosen", null, {
     },
 
     results_update_field:function (select_object) {
+           
         if (select_object !== this.form_field) {
             return;
         }
-
-
+                
         if (!this.is_multiple) {
             this.results_reset_cleanup();
+        } else if (this.is_multiple && this.choices > 0) {
+            dojo.query("li.search-choice", this.search_choices).forEach(dojo.destroy);
+            this.choices = 0;	    
         }
+        
         this.result_clear_highlight();
         this.result_single_selected = null;
         return this.results_build();
@@ -780,7 +784,7 @@ dojo.declare("Chosen", null, {
         this.parsing = false;
     },
 
-    choice_build:function (item) {
+    choice_build:function (item) {     
         var choice_id = this.container_id + "_c_" + item.array_index;
         this.choices += 1;
 

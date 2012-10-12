@@ -1064,6 +1064,7 @@
 					<option value="Zimbabwe">Zimbabwe</option>
 				</select>
 				<div id="multiple_msg"></div>
+				<p><a id="updateLink2">Update List</a></p>
 			</div>
 		</div>
 
@@ -1348,9 +1349,9 @@
 
 
 	<script>
-		dojo.ready(function() {
-			dojo.query(".chzn-select").chosen();
-			dojo.query(".chzn-select-deselect").chosen({allow_single_deselect:true});
+	dojo.ready(function() {
+	    dojo.query(".chzn-select").chosen();
+	    dojo.query(".chzn-select-deselect").chosen({allow_single_deselect:true});
             dojo.query(".chzn-select-batch").chosen({batch_select:true});
 
             var updateLink = dojo.byId("updateLink");
@@ -1373,38 +1374,50 @@
                 var select_object = dojo.byId('select4');
                 dojo.publish('liszt:updated', [select_object]);
             });
+            
+            
+            var updateLink2= dojo.byId("updateLink2");
+
+            dojo.connect(updateLink2, 'onclick', function() {
+                dojo.query('#select2 > option').forEach(function(optionTag) {
+                    if (optionTag.innerHTML) {                       
+			 optionTag.value = optionTag.value.split("").reverse().join("");
+                        optionTag.innerHTML = optionTag.innerHTML.split("").reverse().join("");
+                    }
+                });
+
+                var select_object = dojo.byId('select2');
+                dojo.publish('liszt:updated', [select_object]);
+            });            
         });
         
         function standard_select_change() {
-	    var select_object = dojo.byId('select1');
-	    var select_div = dojo.byId('standard_msg');
+			var select_object = dojo.byId('select1');
+			var select_div = dojo.byId('standard_msg');
 	    
-	    select_div.innerHTML = 'Selected value = ' + dojo.getAttr(select_object, 'value');
+			select_div.innerHTML = 'Selected value = ' + dojo.getAttr(select_object, 'value');
         }
         
         function multiple_select_change() {
-	    var select_object = dojo.byId('select2');
-	    var select_div = dojo.byId('multiple_msg');
-	    
-	    var selected_values = [];
-	    
-	    for (x=0;x<=select_object.length;x++)
-         {
-            if (select_object[x] && select_object[x].selected)
-            {
-             selected_values.push(select_object[x].value);
-            }
-         }
-
-	    
-	    select_div.innerHTML = 'Selected value = ' + selected_values;
+			var select_object = dojo.byId('select2');
+            var select_div = dojo.byId('multiple_msg');
+           
+            var selected_values = [];
+           
+			for (x=0;x<=select_object.length;x++) {
+	            if (select_object[x] && select_object[x].selected) {
+                    selected_values.push(select_object[x].value);
+                }
+            }	   
+            
+             select_div.innerHTML = 'Selected value = ' + selected_values;
         }
         
         function deselect_select_change() {
-	  var select_object = dojo.byId('select3');
-	    var select_div = dojo.byId('deselect_msg');
+            var select_object = dojo.byId('select3');
+            var select_div = dojo.byId('deselect_msg');
 	    
-	    select_div.innerHTML = 'Selected value = ' + dojo.getAttr(select_object, 'value');
+            select_div.innerHTML = 'Selected value = ' + dojo.getAttr(select_object, 'value');
         }
 
 	</script>
