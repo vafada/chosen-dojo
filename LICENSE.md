@@ -4,7 +4,7 @@
 
 Available for use under the [MIT License](http://en.wikipedia.org/wiki/MIT_License)
 
-Copyright (c) 2011 by Harvest
+Copyright (c) 2012 by Mark Bryan Yu
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
