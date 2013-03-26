@@ -2,7 +2,7 @@
 
 Chosen is a library for making long, unwieldy select boxes more user friendly.
 
-This is an AMD conversion of the [Dojo 1.7 port|https://github.com/vafada/chosen-dojo/]
+This is an AMD conversion of the [Dojo 1.7 port](https://github.com/vafada/chosen-dojo/)
 
 - Dojo: 1.8+
 
