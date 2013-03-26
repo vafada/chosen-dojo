@@ -18,4 +18,4 @@ This a port of Chosen (more specifically, a port of [Chosen MooTools version](ht
 - Design and CSS by [Matthew Lettini](http://matthewlettini.com/)
 - MooTools port of Chosen by [Jules Janssen](https://github.com/julesjanssen/chosen)
 - Port to Dojo by [Mark Bryan Yu](https://github.com/vafada)
-
+- Port to Dojo 1.8/AMD by [Cormac Flynn](https://github.com/redking)
