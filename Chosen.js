@@ -8,17 +8,26 @@ define(["dojo/_base/declare",
 		"dojo/dom-construct",
 		"dojo/dom-style",
 		"dojo/on",
+		"dojo/mouse",
 		"dojo/dom",
 		"dojo/topic",
 		"dojo/keys",
 		"dojo/has",
 		"dojo/query",
 		"./SelectParser",
-		"dojo/NodeList-traverse"], function(declare, lang, win, array, domClass, domAttr, domGeom, domConstruct, domStyle, on, dom, topic, keys, has, query, SelectParser) {
+		"dojo/NodeList-traverse"], function(declare, lang, win, array, domClass, domAttr, domGeom, domConstruct, domStyle, on, mouse, dom, topic, keys, has, query, SelectParser) {
 
 	'use strict';
 
 	var Chosen = declare([], {
+
+		// TODO Reduce DOM interactions
+		// TODO use domConstruct rather than HTML strings
+		// TODO Use event delegation
+		// TODO Copy format of other components
+		// TODO Store a reference to key DOM elements early
+		// TODO Make it all work on IE
+		// TODO Switch to Less
 
 		constructor: function(element, options) {
 			this.document_click_handle = null;
@@ -59,7 +68,7 @@ define(["dojo/_base/declare",
 				this.container.innerHTML = '<a href="javascript:void(0)" class="chzn-single"><span>' + this.default_text + '</span><div><b></b></div></a><div class="chzn-drop" style="left:-9000px;"><div class="chzn-search"><input type="text" autocomplete="off" /></div><ul class="chzn-results"></ul></div>';
 			}
 
-			domStyle.set(this.form_field, 'display', 'none')
+			domStyle.set(this.form_field, 'display', 'none');
 			domConstruct.place(this.container, this.form_field, 'after');
 
 			this.dropdown = query('div.chzn-drop', this.container).shift();
@@ -72,12 +81,9 @@ define(["dojo/_base/declare",
 				'top': dd_top + "px"
 			});
 
-
 			this.search_field = query('input', this.container).shift();
 			this.search_results = query('ul.chzn-results', this.container).shift();
 			this.search_field_scale();
-			this.search_no_results = query('li.no-results', this.container).shift();
-
 
 			if(this.is_multiple) {
 				this.search_choices = query('ul.chzn-choices', this.container).shift();
@@ -92,38 +98,34 @@ define(["dojo/_base/declare",
 
 			this.results_build();
 			this.set_tab_index();
-			//this.form_field.fireEvent('liszt:ready', this);
 		},
 
 		register_observers: function() {
+			on(this.container, 'mousedown', lang.hitch(this, this.container_mousedown));
+			on(this.container, 'mouseup', lang.hitch(this, this.container_mouseup));
+			on(this.container, mouse.enter, lang.hitch(this, this.mouse_enter));
+			on(this.container, mouse.leave, lang.hitch(this, this.mouse_leave));
 
-			on(this.container, 'mousedown', this, 'container_mousedown');
-			on(this.container, 'mouseup', this, 'container_mouseup');
-			on(this.container, 'mouseenter', this, 'mouse_enter');
-			on(this.container, 'mouseleave', this, 'mouse_leave');
+			on(this.search_results, 'mouseover', lang.hitch(this, this.search_results_mouseover));
+			on(this.search_results, 'mouseup', lang.hitch(this, this.search_results_mouseup));
+			on(this.search_results, 'mouseout', lang.hitch(this, this.search_results_mouseout));
 
+			topic.subscribe('liszt:updated', lang.hitch(this, this.results_update_field));
 
-			on(this.search_results, 'mouseover', this, 'search_results_mouseover');
-			on(this.search_results, 'mouseup', this, 'search_results_mouseup');
-			on(this.search_results, 'mouseout', this, 'search_results_mouseout');
-
-			topic.subscribe('liszt:updated', this, 'results_update_field');
-
-			on(this.search_field, 'blur', this, 'input_blur');
-			on(this.search_field, 'keyup', this, 'keyup_checker');
-			on(this.search_field, 'keydown', this, 'keydown_checker');
-
+			on(this.search_field, 'blur', lang.hitch(this, this.input_blur));
+			on(this.search_field, 'keyup', lang.hitch(this, this.keyup_checker));
+			on(this.search_field, 'keydown', lang.hitch(this, this.keydown_checker));
 
 			if(this.is_multiple) {
-				on(this.search_choices, 'click', 'choices_click');
-				on(this.search_field, 'focus', this, 'input_focus');
+				on(this.search_choices, 'click', lang.hitch(this, this.choices_click));
+				on(this.search_field, 'focus', lang.hitch(this, this.input_focus));
 			} else {
-				on(this.selected_item, 'focus', this, 'activate_field');
+				on(this.selected_item, 'focus', lang.hitch(this, this.activate_field));
 			}
 		},
 
 		results_update_field: function(select_object) {
-
+			console.log("Updating");
 			if(select_object !== this.form_field) {
 				return;
 			}
@@ -140,14 +142,13 @@ define(["dojo/_base/declare",
 			return this.results_build();
 		},
 
-		input_blur: function(evt) {
+		input_blur: function() {
 			var _this = this;
 			if(!this.mouse_on_container) {
 				this.active_field = false;
 				return setTimeout((function() {
 					_this.blur_test();
 				}), 100);
-
 			}
 		},
 
@@ -155,8 +156,8 @@ define(["dojo/_base/declare",
 			domConstruct.destroy(query('abbr', this.selected_item).shift());
 		},
 
-		blur_test: function(evt) {
-			if(!this.active_field && domClass.has(this.container, 'chzn-container-active')) {
+		blur_test: function() {
+			if(!this.active_field && domClass.contains(this.container, 'chzn-container-active')) {
 				this.close_field();
 			}
 		},
@@ -219,7 +220,7 @@ define(["dojo/_base/declare",
 			}
 
 			switch(evt.keyCode) {
-				case key.BACKSPACE:
+				case keys.BACKSPACE:
 					this.backstroke_length = this.search_field.value.length;
 					break;
 
@@ -252,8 +253,6 @@ define(["dojo/_base/declare",
 					this.result_do_highlight(first_active);
 				}
 			} else if(this.results_showing) {
-				var highlighted_node = query(this.result_highlight).shift();
-
 				var next_sib = query(this.result_highlight).nextAll("li.active-result")[0];
 
 				if(next_sib) {
@@ -283,7 +282,7 @@ define(["dojo/_base/declare",
 			}
 		},
 
-		results_search: function(evt) {
+		results_search: function() {
 			if(this.results_showing) {
 				this.winnow_results();
 			} else {
@@ -305,20 +304,19 @@ define(["dojo/_base/declare",
 		choices_click: function(evt) {
 			evt.preventDefault();
 
-			if(this.active_field && !(domClass.has(query(evt.target).shift(), 'search-choice') || (query(evt.target).parent('.search-choice').length > 0)) && !this.results_showing) {
+			if(this.active_field && !(domClass.contains(query(evt.target).shift(), 'search-choice') || (query(evt.target).parent('.search-choice').length > 0)) && !this.results_showing) {
 				this.results_show();
 			}
 		},
 
 		search_results_mouseout: function(evt) {
-			if(domClass.has(query(evt.target).shift(), 'active-result') || query(evt.target).parent('.active-result')) {
+			if(domClass.contains(query(evt.target).shift(), 'active-result') || query(evt.target).parent('.active-result')) {
 				this.result_clear_highlight();
 			}
 		},
 
 		search_results_mouseup: function(evt) {
-
-			var target = domClass.has(query(evt.target).shift(), 'active-result') ? evt.target : query(evt.target).parent('.active-result').shift();
+			var target = domClass.contains(query(evt.target).shift(), 'active-result') ? evt.target : query(evt.target).parent('.active-result').shift();
 
 			if(target) {
 				this.result_highlight = target;
@@ -348,8 +346,8 @@ define(["dojo/_base/declare",
 
 					var index = 0;
 
-					while(siblings[index] && !domClass.has(siblings[index], "group-result-selectable")) {
-						if(domClass.has(siblings[index], "active-result")) {
+					while(siblings[index] && !domClass.contains(siblings[index], "group-result-selectable")) {
+						if(domClass.contains(siblings[index], "active-result")) {
 							var sibling = siblings[index];
 							var sibling_id = sibling.id;
 							var sibling_position = sibling_id.substr(sibling_id.lastIndexOf("_") + 1);
@@ -405,9 +403,10 @@ define(["dojo/_base/declare",
 
 		dojo_fire_event: function(event_name) {
 			// IE does things differently
-			if(has('ie')) {
+			if(has('ie-event-behavior')) {
 				query(this.form_field).shift().fireEvent("on" + event_name);
 			} else {  // Not IE
+				// TODO Replace with emit ?
 				var event = document.createEvent("HTMLEvents");
 				event.initEvent(event_name, false, true);
 				query(this.form_field).shift().dispatchEvent(event);
@@ -420,7 +419,7 @@ define(["dojo/_base/declare",
 			}
 		},
 
-		input_focus: function(evt) {
+		input_focus: function() {
 			var _this = this;
 			if(!this.active_field) {
 				return setTimeout((function() {
@@ -431,7 +430,7 @@ define(["dojo/_base/declare",
 
 		container_mousedown: function(evt) {
 			if(!this.is_disabled) {
-				var target_closelink = evt != null ? domClass.has(evt.target, 'search-choice-close') : false;
+				var target_closelink = evt != null ? domClass.contains(evt.target, 'search-choice-close') : false;
 				if(evt && evt.type === "mousedown") {
 					evt.stopPropagation();
 				}
@@ -442,7 +441,7 @@ define(["dojo/_base/declare",
 							domAttr.set(this.search_field, 'value', '');
 						}
 
-						this.document_click_handle = on(document, 'click', this, 'test_active_click');
+						this.document_click_handle = on(document, 'click', lang.hitch(this, this.test_active_click));
 
 						this.results_show();
 					} else if(!this.is_multiple && evt && (evt.target === this.selected_item || query(evt.target).parents('a.chzn-single').length)) {
@@ -477,7 +476,7 @@ define(["dojo/_base/declare",
 
 		search_results_mouseover: function(evt) {
 
-			var target = domClass.has(query(evt.target).shift(), "active-result") ? evt.target : query(evt.target).parent(".active-result").shift();
+			var target = domClass.contains(query(evt.target).shift(), "active-result") ? evt.target : query(evt.target).parent(".active-result").shift();
 
 			if(target) {
 				this.result_do_highlight(target);
@@ -660,7 +659,6 @@ define(["dojo/_base/declare",
 		},
 
 		results_build: function() {
-			this.parsing = true;
 			this.results_data = select_to_array.call(this.form_field);
 
 			if(this.is_multiple && this.choices > 0) {
@@ -703,8 +701,6 @@ define(["dojo/_base/declare",
 			this.show_search_field_default();
 			this.search_field_scale();
 			this.search_results.innerHTML = content;
-
-			this.parsing = false;
 		},
 
 		choice_build: function(item) {
@@ -749,8 +745,8 @@ define(["dojo/_base/declare",
 
 			var result = dom.byId(this.container_id + "_o_" + pos);
 
-			domClass.remove(result, "result-selected")
-			domClass.add(result, "active-result")
+			domClass.remove(result, "result-selected");
+			domClass.add(result, "active-result");
 
 			this.result_clear_highlight();
 			this.winnow_results();
@@ -786,13 +782,15 @@ define(["dojo/_base/declare",
 				domAttr.set(this.search_field, 'disabled', false);
 
 				if(!this.is_multiple) {
-					this.selected_item_focus_handle = on(this.selected_item, "focus", this, 'activate_field');
+					this.selected_item_focus_handle = on(this.selected_item, "focus", lang.hitch(this, this.activate_field));
 				}
 			}
 		},
 
 		close_field: function() {
-			this.document_click_handle.remove();
+			if(this.document_click_handle) {
+				this.document_click_handle.remove();
+			}
 
 			if(!this.is_multiple) {
 				domAttr.set(this.selected_item, 'tabindex', domAttr.get(this.search_field, 'tabindex'));
@@ -815,7 +813,7 @@ define(["dojo/_base/declare",
 			domAttr.set(this.search_field, 'value', '');
 
 			query('li', this.search_results).forEach(function(li) {
-				(domClass.has(li, "group-result") || domClass.has(li, "group-result-selectable")) ? domStyle.set(li, 'display', 'block') : !_this.is_multiple || !domClass.has(li, "result-selected") ? _this.result_activate(li) : void 0;
+				(domClass.contains(li, "group-result") || domClass.contains(li, "group-result-selectable")) ? domStyle.set(li, 'display', 'block') : !_this.is_multiple || !domClass.contains(li, "result-selected") ? _this.result_activate(li) : void 0;
 			});
 		},
 
@@ -872,7 +870,7 @@ define(["dojo/_base/declare",
 
 		search_field_scale: function() {
 			if(this.is_multiple) {
-				var h = 0, w = 0,
+				var w = 0,
 					style_block = {
 						position: 'absolute',
 						left: '-1000px',
@@ -893,7 +891,6 @@ define(["dojo/_base/declare",
 					style: style_block,
 					innerHTML: domAttr.get(this.search_field, 'value')
 				}, win.body());
-
 
 				w = domGeom.position(div).w + 25;
 
