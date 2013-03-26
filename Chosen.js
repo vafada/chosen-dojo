@@ -400,12 +400,12 @@ define(["dojo/_base/declare",
 			}
 		},
 
+		// TODO Replace with emit ?
 		dojo_fire_event: function(event_name) {
 			// IE does things differently
 			if(has('ie-event-behavior')) {
 				query(this.form_field).shift().fireEvent("on" + event_name);
 			} else {  // Not IE
-				// TODO Replace with emit ?
 				var event = document.createEvent("HTMLEvents");
 				event.initEvent(event_name, false, true);
 				query(this.form_field).shift().dispatchEvent(event);
@@ -733,7 +733,7 @@ define(["dojo/_base/declare",
 			}
 			this.result_deselect(domAttr.get(link, "rel"));
 
-			domConstruct.destroy(query(link).parent('li')[0])
+			domConstruct.destroy(query(link).parent('li')[0]);
 		},
 
 		result_deselect: function(pos) {
