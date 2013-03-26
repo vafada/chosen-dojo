@@ -125,8 +125,7 @@ define(["dojo/_base/declare",
 		},
 
 		results_update_field: function(select_object) {
-			console.log("Updating");
-			if(select_object !== this.form_field) {
+			if(select_object[0] !== this.form_field) {
 				return;
 			}
 

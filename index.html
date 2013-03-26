@@ -1488,6 +1488,7 @@
             var updateLink = dom.byId("updateLink");
 
             on(updateLink, 'click', function() {
+                console.log("Updating 1");
                 query('#select4 > option').forEach(function(optionTag) {
                     if(optionTag.innerHTML) {
                         var values = optionTag.innerHTML.split(" ");
@@ -1510,6 +1511,7 @@
             var updateLink2 = dom.byId("updateLink2");
 
             on(updateLink2, 'click', function() {
+                console.log("Updating 2");
                 query('#select2 > option').forEach(function(optionTag) {
                     if(optionTag.innerHTML) {
                         optionTag.value = optionTag.value.split("").reverse().join("");
