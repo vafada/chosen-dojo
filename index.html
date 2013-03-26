@@ -49,10 +49,10 @@
 	</style>
 
 
-	<script src="http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dojo/dojo.js"></script>
-	<!-- work around so that you can test the demo using file:// uri -->
-	<script src="http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dojo/NodeList-traverse.js"></script>
-	<script src="chosen-dojo.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/dojo/1.8.3/dojo/dojo.js" data-dojo-config="async:1, tlmSiblingOfDojo: 0, isDebug: 1, packages: [ {
+            name: 'Chosen',
+            location: location.pathname.replace(/\/[^/]+$/, '') + '/'
+        } ]"></script>
 	<link rel="stylesheet" href="chosen.css" />
 </head>
 <body>
@@ -1309,7 +1309,7 @@
                 </select>
 
                 <p><a id="updateLink">Update List</a></p>
-                <code>var select_object = dojo.byId('select4'); dojo.publish('liszt:updated', [select_object]);</code>
+                <code>var select_object = dom.byId('select4'); topic.publish('liszt:updated', [select_object]);</code>
             </div>
 
         </div>
@@ -1349,77 +1349,78 @@
 
 
 	<script>
-	dojo.ready(function() {
-	    dojo.query(".chzn-select").chosen();
-	    dojo.query(".chzn-select-deselect").chosen({allow_single_deselect:true});
-            dojo.query(".chzn-select-batch").chosen({batch_select:true});
+        require(['dojo/ready', 'dojo/query', 'dojo/on', 'dojo/dom', 'dojo/topic', 'dojo/dom-attr', 'Chosen/Chosen'], function(ready, query, on, dom, topic, domAttr) {
+           ready(function() {
+               query(".chzn-select").chosen();
+               query(".chzn-select-deselect").chosen({allow_single_deselect:true});
+               query(".chzn-select-batch").chosen({batch_select:true});
 
-            var updateLink = dojo.byId("updateLink");
+               var updateLink = dom.byId("updateLink");
 
-            dojo.connect(updateLink, 'onclick', function() {
-                dojo.query('#select4 > option').forEach(function(optionTag) {
-                    if (optionTag.innerHTML) {
-                        var values = optionTag.innerHTML.split(" ");
+               on(updateLink, 'onclick', function() {
+                   query('#select4 > option').forEach(function(optionTag) {
+                       if (optionTag.innerHTML) {
+                           var values = optionTag.innerHTML.split(" ");
 
-                        var newValue = values[values.length - 1];
+                           var newValue = values[values.length - 1];
 
-                        for (var i = 0; i <= values.length - 2; i++) {
-                            newValue = newValue + " "  + values[i] ;
-                        }
+                           for (var i = 0; i <= values.length - 2; i++) {
+                               newValue = newValue + " "  + values[i] ;
+                           }
 
-                        optionTag.innerHTML = newValue;
+                           optionTag.innerHTML = newValue;
+                       }
+                   });
+
+                   var select_object = dom.byId('select4');
+                   topic.publish('liszt:updated', [select_object]);
+               });
+
+
+               var updateLink2= dom.byId("updateLink2");
+
+               on(updateLink2, 'onclick', function() {
+                   query('#select2 > option').forEach(function(optionTag) {
+                       if (optionTag.innerHTML) {
+                           optionTag.value = optionTag.value.split("").reverse().join("");
+                           optionTag.innerHTML = optionTag.innerHTML.split("").reverse().join("");
+                       }
+                   });
+
+                   var select_object = dom.byId('select2');
+                   topic.publish('liszt:updated', [select_object]);
+               });
+           });
+
+            function standard_select_change() {
+                var select_object = dom.byId('select1');
+                var select_div = dom.byId('standard_msg');
+
+                select_div.innerHTML = 'Selected value = ' + domAttr.get(select_object, 'value');
+            }
+
+            function multiple_select_change() {
+                var select_object = dom.byId('select2');
+                var select_div = dom.byId('multiple_msg');
+
+                var selected_values = [];
+
+                for (x=0;x<=select_object.length;x++) {
+                    if (select_object[x] && select_object[x].selected) {
+                        selected_values.push(select_object[x].value);
                     }
-                });
-
-                var select_object = dojo.byId('select4');
-                dojo.publish('liszt:updated', [select_object]);
-            });
-            
-            
-            var updateLink2= dojo.byId("updateLink2");
-
-            dojo.connect(updateLink2, 'onclick', function() {
-                dojo.query('#select2 > option').forEach(function(optionTag) {
-                    if (optionTag.innerHTML) {                       
-			 optionTag.value = optionTag.value.split("").reverse().join("");
-                        optionTag.innerHTML = optionTag.innerHTML.split("").reverse().join("");
-                    }
-                });
-
-                var select_object = dojo.byId('select2');
-                dojo.publish('liszt:updated', [select_object]);
-            });            
-        });
-        
-        function standard_select_change() {
-			var select_object = dojo.byId('select1');
-			var select_div = dojo.byId('standard_msg');
-	    
-			select_div.innerHTML = 'Selected value = ' + dojo.getAttr(select_object, 'value');
-        }
-        
-        function multiple_select_change() {
-			var select_object = dojo.byId('select2');
-            var select_div = dojo.byId('multiple_msg');
-           
-            var selected_values = [];
-           
-			for (x=0;x<=select_object.length;x++) {
-	            if (select_object[x] && select_object[x].selected) {
-                    selected_values.push(select_object[x].value);
                 }
-            }	   
-            
-             select_div.innerHTML = 'Selected value = ' + selected_values;
-        }
-        
-        function deselect_select_change() {
-            var select_object = dojo.byId('select3');
-            var select_div = dojo.byId('deselect_msg');
-	    
-            select_div.innerHTML = 'Selected value = ' + dojo.getAttr(select_object, 'value');
-        }
 
+                select_div.innerHTML = 'Selected value = ' + selected_values;
+            }
+
+            function deselect_select_change() {
+                var select_object = dom.byId('select3');
+                var select_div = dom.byId('deselect_msg');
+
+                select_div.innerHTML = 'Selected value = ' + domAttr.get(select_object, 'value');
+            }
+        });
 	</script>
 
 	<!-- <input type="submit" value="Send" /> -->
