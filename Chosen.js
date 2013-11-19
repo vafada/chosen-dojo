@@ -941,7 +941,7 @@ define(["dojo/_base/declare",
 	function select_to_array() {
 		var parser = new SelectParser();
 
-		query('>', this).forEach(function(child) {
+		query('> option', this).forEach(function(child) {
 			parser.add_node(child);
 		});
 
