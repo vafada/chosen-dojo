@@ -7,9 +7,7 @@ dojo.extend(dojo.NodeList, {
                 return new Chosen(element, options);
             }
         });
-    },
-
-
+    }
 });
 
 function select_to_array() {
