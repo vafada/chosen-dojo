@@ -814,7 +814,8 @@ dojo.declare("Chosen", null, {
         }
         this.result_deselect(dojo.getAttr(link, "rel"));
 
-        dojo.destroy(dojo.query(link).parent('li')[0])
+        dojo.destroy(dojo.query(link).parent('li')[0]);
+        this.pending_destroy_click = false;
     },
 
     result_deselect:function (pos) {
