@@ -771,7 +771,7 @@ define(["dojo/_base/declare",
 				domClass.add(this.container, 'chzn-disabled');
 				domAttr.set(this.search_field, 'disabled', true);
 				if(!this.is_multiple) {
-					if(!this.selected_item_focus_handle) {
+					if(this.selected_item_focus_handle) {
 						this.selected_item_focus_handle.remove();
 					}
 				}
