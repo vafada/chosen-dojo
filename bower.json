@@ -1,0 +1,16 @@
+{
+    "name": "chosen-dojo",
+    "version": "0.0.1",
+    "description": "Dojo port of Chosen",
+    "main": "./Chosen.js",
+    "license": "./LICENSE.md",
+    "ignore": [
+        ".jshintrc",
+        ".gitignore",
+        "package.js"
+    ],
+    "keywords": [
+        "chosen",
+        "select"
+    ]
+}
