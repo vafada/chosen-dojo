@@ -6,8 +6,7 @@
     "license": "./LICENSE.md",
     "ignore": [
         ".jshintrc",
-        ".gitignore",
-        "package.js"
+        ".gitignore"
     ],
     "keywords": [
         "chosen",
