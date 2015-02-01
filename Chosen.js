@@ -390,7 +390,7 @@ define(["dojo/_base/declare",
 					}
 				}
 
-				if(!this.is_multiple || !evt.control) {
+				if(!((evt.metaKey || evt.ctrlKey) && this.is_multiple)) {
 					this.results_hide();
 				}
 				domAttr.set(this.search_field, 'value', "");
