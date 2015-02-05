@@ -1,5 +1,6 @@
 dojo.require("dojo.NodeList-traverse");
 
+
 dojo.extend(dojo.NodeList, {
     chosen:function (options) {
         return this.forEach(function (element) {
@@ -97,6 +98,7 @@ dojo.declare("Chosen", null, {
         this.result_single_selected = null;
         this.options = options != null ? options : {};
         this.results_none_found = dojo.getAttr(this.form_field, 'data-no_results_text') || this.options.no_results_text || "No results match";
+        this.max_selected_options = this.options.max_selected_options || Infinity;
         this.set_up_html();
         this.register_observers();
         dojo.addClass(this.form_field, 'chzn-done');
@@ -201,7 +203,7 @@ dojo.declare("Chosen", null, {
             this.results_reset_cleanup();
         } else if (this.is_multiple && this.choices > 0) {
             dojo.query("li.search-choice", this.search_choices).forEach(dojo.destroy);
-            this.choices = 0;	    
+            this.choices = 0;       
         }
         
         this.result_clear_highlight();
@@ -406,11 +408,17 @@ dojo.declare("Chosen", null, {
         if (this.result_highlight) {
             var high = this.result_highlight, high_id = high.id;
             this.result_clear_highlight();
+            
+            if (this.is_multiple && this.max_selected_options <= this.choices_count()) {                
+                this.dojo_fire_event("maxselected");
+                return false;
+            }
 
             var position = high_id.substr(high_id.lastIndexOf("_") + 1);
 
             var item = this.results_data[position];
 
+            this.selected_option_count = null;
             if (this.is_multiple && item.group && this.options.batch_select) {
                 // assume multiple
                 var siblings = dojo.query(high).nextAll();
@@ -469,7 +477,6 @@ dojo.declare("Chosen", null, {
             }
             dojo.setAttr(this.search_field, 'value', "");
             this.dojo_fire_event("change");
-
             this.search_field_scale();
         }
     },
@@ -566,6 +573,11 @@ dojo.declare("Chosen", null, {
                 this.result_do_highlight(this.result_single_selected);
             }
         }
+        
+        if(this.max_selected_options <= this.choices_count()) {
+            this.dojo_fire_event("maxselected");
+            return false;
+        }
 
         var dd_top = this.is_multiple ? dojo.position(this.container).h : dojo.position(this.container).h - 1;
 
@@ -584,6 +596,7 @@ dojo.declare("Chosen", null, {
     winnow_results:function () {
         this.no_results_clear();
 
+
         var results = 0,
             searchText = dojo.getAttr(this.search_field, 'value') === this.default_text ? "" : dojo.trim(dojo.getAttr(this.search_field, 'value')),
             regex = new RegExp('^' + searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i'),
@@ -592,10 +605,12 @@ dojo.declare("Chosen", null, {
         _this = this;
 
         dojo.forEach(this.results_data, function (option) {
+
             if (!option.disabled && !option.empty) {
                 if (option.group) {
                     dojo.setStyle(dojo.byId(option.dom_id), 'display', 'none');
                 } else if (!(_this.is_multiple && option.selected)) {
+
                     var found = false,
                         result_id = option.dom_id,
                         result = dojo.byId(result_id);
@@ -639,6 +654,7 @@ dojo.declare("Chosen", null, {
 
                         _this.result_deactivate(result);
                     }
+
                 }
             }
         });
@@ -701,7 +717,9 @@ dojo.declare("Chosen", null, {
     },
 
     result_deactivate:function (el) {
+
         dojo.removeClass(el, "active-result");
+
     },
 
     no_results_clear:function () {
@@ -710,6 +728,7 @@ dojo.declare("Chosen", null, {
 
 
     test_active_click:function (evt) {
+
 
         var clicked_element = dojo.query(evt.target).shift();
 
@@ -736,6 +755,7 @@ dojo.declare("Chosen", null, {
 
     results_build:function () {
         this.parsing = true;
+        this.selected_option_count = null;
         this.results_data = select_to_array.call(this.form_field);
 
         if (this.is_multiple && this.choices > 0) {
@@ -747,9 +767,11 @@ dojo.declare("Chosen", null, {
                 child.innerHTML = _this.default_text;
             });
 
-            if (_this.form_field.options.length <= _this.options.disable_search_threshold) {
+            if (_this.disable_search || _this.form_field.options.length <= _this.options.disable_search_threshold) {
+                _this.search_field.readOnly = true;
                 dojo.addClass(_this.container, "chzn-container-single-nosearch");
             } else {
+                _this.search_field.readOnly = false;
                 dojo.removeClass(_this.container, "chzn-container-single-nosearch");
             }
         }
@@ -786,16 +808,17 @@ dojo.declare("Chosen", null, {
         var choice_id = this.container_id + "_c_" + item.array_index;
         this.choices += 1;
 
+
         var el = dojo.create('li', {'id':choice_id});
         dojo.addClass(el, 'search-choice');
 
 
         el.innerHTML = '<span>' + dojo.getAttr(item, 'value') + '</span><a href="#" class="search-choice-close" rel="' + item.array_index + '"></a>';
 
+
         dojo.place(el, this.search_container, 'before');
 
         dojo.query('a', el).onclick(dojo.hitch(this, function (evt) {
-
             evt.preventDefault();
             if (!this.is_disabled) {
                 this.pending_destroy_click = true;
@@ -829,6 +852,8 @@ dojo.declare("Chosen", null, {
         dojo.removeClass(result, "result-selected")
         dojo.addClass(result, "active-result")
 
+
+        this.selected_option_count = null;
         this.result_clear_highlight();
         this.winnow_results();
 
@@ -925,6 +950,7 @@ dojo.declare("Chosen", null, {
 
     result_add_option:function (option) {
         if (!option.disabled) {
+
             option.dom_id = this.container_id + "_o_" + option.array_index;
             var classes = option.selected && this.is_multiple ? [] : ["active-result"];
 
@@ -1006,7 +1032,23 @@ dojo.declare("Chosen", null, {
         chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         rand = Math.floor(Math.random() * chars.length);
         return newchar = chars.substring(rand, rand + 1);
+    },
+    
+    choices_count: function() {
+        var option, _i, _len, _ref;
+        if (this.selected_option_count != null) {
+            return this.selected_option_count;
+        }
+        this.selected_option_count = 0;
+        _ref = this.form_field.options;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            option = _ref[_i];
+            if (option.selected) {
+            this.selected_option_count += 1;
+            }
+        }
+        return this.selected_option_count;
     }
+
+
 });
-
-
