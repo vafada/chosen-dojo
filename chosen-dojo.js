@@ -759,7 +759,9 @@ dojo.declare("Chosen", null, {
         this.results_data = select_to_array.call(this.form_field);
 
         if (this.is_multiple && this.choices > 0) {
-            dojo.destroy(dojo.query("li.search-choice", this.search_choices).shift());
+            dojo.query("li.search-choice", this.search_choices).forEach(function(child) {
+                dojo.destroy(child);
+            }); 
             this.choices = 0;
         } else if (!this.is_multiple) {
             _this = this;
