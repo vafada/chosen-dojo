@@ -291,7 +291,7 @@ define(["dojo/_base/declare",
 
 		results_reset: function(evt) {
 			this.form_field.options[0].selected = true;
-			query('span', this.selected_item).shift().innerHTML = this.default_text;
+			query('span', this.selected_item).shift().textContent = this.default_text;
 			this.show_search_field_default();
 			domConstruct.destroy(evt.target);
 			this.dojo_fire_event("change");
@@ -383,7 +383,7 @@ define(["dojo/_base/declare",
 					if(this.is_multiple) {
 						this.choice_build(item);
 					} else {
-						query('span', this.selected_item).shift().innerHTML = item.text;
+						query('span', this.selected_item).shift().textContent = item.text;
 						if(this.options.allow_single_deselect) {
 							this.single_deselect_control_build();
 						}
@@ -576,7 +576,7 @@ define(["dojo/_base/declare",
 
 		no_results: function(terms) {
 			var no_results_html = domConstruct.create('li', {className: 'no-results', innerHTML: this.results_none_found + ' "<span></span>" '}, this.search_results);
-			query('span', no_results_html).shift().innerHTML = terms;
+			query('span', no_results_html).shift().textContent = terms;
 		},
 
 		winnow_results_set_highlight: function() {
@@ -666,7 +666,7 @@ define(["dojo/_base/declare",
 			} else if(!this.is_multiple) {
 				var _this = this;
 				query('span', this.selected_item).forEach(function(child) {
-					child.innerHTML = _this.default_text;
+					child.textContent = _this.default_text;
 				});
 
 				if(_this.form_field.options.length <= _this.options.disable_search_threshold) {
@@ -688,7 +688,7 @@ define(["dojo/_base/declare",
 					if(data.selected && this.is_multiple) {
 						this.choice_build(data);
 					} else if(data.selected && !this.is_multiple) {
-						query('span', this.selected_item).shift().innerHTML = data.text;
+						query('span', this.selected_item).shift().textContent = data.text;
 						if(this.options.allow_single_deselect) {
 							this.single_deselect_control_build();
 						}
@@ -888,7 +888,7 @@ define(["dojo/_base/declare",
 
 				var div = domConstruct.create('div', {
 					style: style_block,
-					innerHTML: domAttr.get(this.search_field, 'value')
+					textContent: domAttr.get(this.search_field, 'value')
 				}, win.body());
 
 				w = domGeom.position(div).w + 25;
